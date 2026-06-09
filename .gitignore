@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Data and Models (Very important to ignore)
+data/
+models/
+
+# Environments
+venv/
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
