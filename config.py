@@ -1,7 +1,7 @@
 import os
 
 # Lấy đường dẫn của thư mục hiện tại chứa file này
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = '/content/drive/MyDrive'
 
 # Các thư mục con sẽ nằm ngay trong thư mục dự án
 DATA_DIR = os.path.join(BASE_DIR, 'data')
