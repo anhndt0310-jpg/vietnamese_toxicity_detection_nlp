@@ -1,7 +1,6 @@
 import argparse
 from train import run_training
 from config import DATA_DIR, MODEL_DIR
-# Bạn có thể import thêm preprocess nếu cần
 
 def main():
     parser = argparse.ArgumentParser(description="Vietnamese Cyberbullying Detection Pipeline")
