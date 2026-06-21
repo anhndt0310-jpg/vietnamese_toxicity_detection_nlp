@@ -7,7 +7,8 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 # Đường dẫn tới mô hình đã fine-tune
 
-FINE_TUNED_PATH = "/content/drive/MyDrive/path/to/your/phobert_cyberbullying_final"DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+FINE_TUNED_PATH = "/content/drive/MyDrive/path/to/your/phobert_cyberbullying_final"
+DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 print(f"⏳ Đang khởi tạo PhoBERT trên {DEVICE}...")
 
