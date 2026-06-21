@@ -10,15 +10,15 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 FINE_TUNED_PATH = "/content/drive/MyDrive/phobert_cyberbullying_final"
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-print(f"⏳ Đang khởi tạo PhoBERT trên {DEVICE}...")
+print(f"Đang khởi tạo PhoBERT trên {DEVICE}...")
 
 if os.path.exists(FINE_TUNED_PATH):
-    print(f"✅ Đang nạp mô hình FINE-TUNED: {FINE_TUNED_PATH}")
+    print(f"Đang nạp mô hình FINE-TUNED: {FINE_TUNED_PATH}")
     # Sử dụng AutoModelForSequenceClassification vì đây là model đã fine-tune cho task phân loại
     model = AutoModelForSequenceClassification.from_pretrained(FINE_TUNED_PATH).to(DEVICE)
     tokenizer = AutoTokenizer.from_pretrained(FINE_TUNED_PATH)
 else:
-    print("❌ Không tìm thấy bản fine-tuned tại thư mục models. Vui lòng kiểm tra lại bước sao chép từ Drive.")
+    print("Không tìm thấy bản fine-tuned tại thư mục models. Vui lòng kiểm tra lại bước sao chép từ Drive.")
     exit()
 
 def predict_comment(text):
