@@ -9,5 +9,5 @@ def load_and_clean_data(file_name):
     return df
 
 if __name__ == "__main__":
-    print("🚀 Đang chạy tiền xử lý...")
+    print("Đang chạy tiền xử lý...")
     # Chạy thử nghiệm khi gọi trực tiếp file này
