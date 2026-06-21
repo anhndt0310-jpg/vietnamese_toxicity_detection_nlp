@@ -1,6 +1,5 @@
 import os
 
-# Luôn ưu tiên thư mục cục bộ của Podrun
 BASE_DIR = os.path.abspath(os.getcwd()) 
 
 # Trỏ thẳng vào thư mục data trong cùng thư mục với code
