@@ -46,13 +46,13 @@ def get_embeddings(texts, tokenizer, model, batch_size=32):
     return np.vstack(all_embeddings)
 
 def run_training():
-    print("📦 Đang nạp dữ liệu...")
+    print("Đang nạp dữ liệu...")
     X_train_raw, X_test_raw, y_train, y_test = load_processed_data()
 
-    print("✨ Đang trích xuất embeddings cho dữ liệu huấn luyện...")
+    print(" Đang trích xuất embeddings cho dữ liệu huấn luyện...")
     X_train_embeddings = get_embeddings(X_train_raw, PHOBERT_TOKENIZER, PHOBERT_BASE_MODEL)
 
-    print("🔄 Đang cân bằng SMOTE trên embeddings huấn luyện...")
+    print(" Đang cân bằng SMOTE trên embeddings huấn luyện...")
     smote = SMOTE(random_state=42)
     X_resampled, y_resampled = smote.fit_resample(X_train_embeddings, y_train)
 
@@ -63,11 +63,8 @@ def run_training():
     print(f"Phân bố nhãn (sau SMOTE):\n{pd.Series(y_resampled).value_counts()}")
 
     # --- Tiếp theo: Huấn luyện mô hình phân loại trên dữ liệu đã cân bằng ---
-    print("\n✅ Đã hoàn tất bước cân bằng dữ liệu bằng SMOTE trên embeddings.")
-    print("Các bước tiếp theo sẽ là huấn luyện mô hình phân loại trên dữ liệu đã cân bằng.")
-    print("Bạn có thể sử dụng X_resampled và y_resampled để huấn luyện một classifier (ví dụ: Logistic Regression, SVM, hoặc một mạng neural nhỏ).")
-    print("Hoặc, để fine-tune PhoBERT end-to-end với các mẫu cân bằng, bạn có thể tạo một Dataset mới từ X_resampled và y_resampled,")
-    print("và tiếp tục với quá trình huấn luyện sử dụng Trainer của Hugging Face, nhưng điều này yêu cầu một kiến trúc phù hợp.")
+    print("\n Đã hoàn tất bước cân bằng dữ liệu bằng SMOTE trên embeddings.")
+
 
 
 if __name__ == '__main__':
