@@ -1,49 +1,57 @@
+import torch
 import joblib
 import os
-import torch
-import numpy as np
+import argparse
+from transformers import AutoModel, AutoTokenizer
+from preprocess import clean_text # Hàm làm sạch bạn đã viết
 from config import MODEL_DIR
-from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-# Đường dẫn tới mô hình đã fine-tune
-
-FINE_TUNED_PATH = "/content/drive/MyDrive/phobert_cyberbullying_final"
+# Cấu hình thiết bị
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-print(f"Đang khởi tạo PhoBERT trên {DEVICE}...")
+class Predictor:
+    def __init__(self, model_path):
+        print("Đang nạp PhoBERT để trích xuất đặc trưng...")
+        self.tokenizer = AutoTokenizer.from_pretrained("vinai/phobert-base")
+        self.model = AutoModel.from_pretrained("vinai/phobert-base").to(DEVICE)
+        self.model.eval()
+        
+        print("Đang nạp mô hình Logistic Regression đã huấn luyện...")
+        self.logreg_model = joblib.load(model_path)
 
-if os.path.exists(FINE_TUNED_PATH):
-    print(f"Đang nạp mô hình FINE-TUNED: {FINE_TUNED_PATH}")
-    # Sử dụng AutoModelForSequenceClassification vì đây là model đã fine-tune cho task phân loại
-    model = AutoModelForSequenceClassification.from_pretrained(FINE_TUNED_PATH).to(DEVICE)
-    tokenizer = AutoTokenizer.from_pretrained(FINE_TUNED_PATH)
-else:
-    print("Không tìm thấy bản fine-tuned tại thư mục models. Vui lòng kiểm tra lại bước sao chép từ Drive.")
-    exit()
+    def predict(self, text):
+        # 1. Làm sạch câu
+        clean_input = clean_text(text)
+        
+        # 2. Tạo Embedding bằng PhoBERT
+        inputs = self.tokenizer(clean_input, return_tensors='pt', 
+                                padding='max_length', truncation=True, 
+                                max_length=128).to(DEVICE)
+        
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            # Lấy token [CLS]
+            embedding = outputs.last_hidden_state[:, 0, :].cpu().numpy()
+            
+        # 3. Dự đoán
+        prediction = self.logreg_model.predict(embedding)
+        return "Độc hại" if prediction[0] == 1 else "Lành mạnh"
 
-def predict_comment(text):
-    model.eval()
-    inputs = tokenizer(text, return_tensors='pt', truncation=True, padding='max_length', max_length=128).to(DEVICE)
+def main():
+    parser = argparse.ArgumentParser(description="Dự đoán bình luận độc hại")
+    parser.add_argument('--text', type=str, required=True, help="Câu cần dự đoán")
+    args = parser.parse_args()
+
+    model_path = os.path.join(MODEL_DIR, 'phobert_logreg_smote.pkl')
     
-    with torch.no_grad():
-        outputs = model(**inputs)
-        logits = outputs.logits
-        probs = torch.softmax(logits, dim=1)
-        prediction = torch.argmax(probs, dim=1).item()
-        confidence = probs[0][prediction].item() * 100
+    if not os.path.exists(model_path):
+        print("Lỗi: Không tìm thấy file mô hình! Hãy chạy train trước.")
+        return
 
-    label = "Toxic (Độc hại)" if prediction == 1 else "Non-toxic (Lành mạnh)"
-    return f"Kết quả: {label} ({confidence:.2f}%)"
+    predictor = Predictor(model_path)
+    result = predictor.predict(args.text)
+    print(f"\nKết quả dự đoán cho: '{args.text}'")
+    print(f"-> Nhãn: {result}")
 
 if __name__ == '__main__':
-    try:
-        comment = input("Nhập câu bình luận cần kiểm tra: ")
-        if not comment:
-            comment = "chào thằng ngu"
-            print(f"Test với câu mặc định: {comment}")
-        print(predict_comment(comment))
-    except EOFError:
-        # Xử lý khi chạy trong môi trường non-interactive
-        test_case = "chào thằng ngu"
-        print(f"Nhập câu: {test_case}")
-        print(predict_comment(test_case))
+    main()
